@@ -8,8 +8,9 @@ In order to reporduce the experiments in "Label-free quantification in the Crux 
 - You have access to a computer running Windows, macOS, or Linux. (Some experiments were run on Linux and others on Windows)
 - You have sufficient permissions to install and run software.
 - Required dependencies (such as Python, if needed) are installed.
+- Code is found in `src`, hence each time an instruction is provided to run it is assumed the user is running from `src`.
 
-Database Searching:
+# Database Searching:
 
 ## Tide:
 
@@ -30,3 +31,23 @@ Database Searching:
   - We assume you are using a Linux distro if not, then read the shell script and run the equivalent commands on your operating system.
 
   - We assume you are using `.mzML` files if not change the `extension` on line 9 in `run_tide.sh`
+
+### FDR for Tide:
+
+As at the time of this publication crux's make-pin did not return retention time, hence download a custom compiled version from [zonodo]() for your experiments. Note that this will e added in future versions of crux.
+
+- Download custom crux build : [crux-percolator]()
+
+- Place the downloaded file in the `bin` folder
+
+- Run the script `run_make-pin.sh`
+
+- Once the previous script is done run `run_percolator.sh`
+
+# CruxLFQ
+
+- In order to run `lfq` in crux, download a custom build of crux: [crux-lfq](). This is because at the time of writing lfq had not yet been merged into crux main.
+
+- Once done downloading, place the binary in `bin` folder
+
+- Run crux-lfq with this shell script: `run_crux-lfq.sh`

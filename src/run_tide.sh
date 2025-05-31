@@ -8,7 +8,7 @@ results_folder=$(realpath "../results")
 
 extension=".mzML"
 timestamp=$(date +%F_%H%M%S)
-output_dir="${results_folder}/${timestamp}_crux_output"
+output_dir="${results_folder}/${timestamp}_crux_tide-search-output"
 fixed_params="--output-dir $output_dir --concat T --num-threads 6"
 index_dir=${results_folder}/HUMAN_ECOLI
 
