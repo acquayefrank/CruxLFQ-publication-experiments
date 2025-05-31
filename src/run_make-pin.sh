@@ -1,7 +1,7 @@
 #!/bin/bash
 
 
-crux=$(realpath "../bin/crux-percolator")
+crux=$(realpath "../bin/crux-lfq")
 results_folder=$(realpath "../results")
 
 # The code below assumes that the tide search results file is named "tide-search.txt"

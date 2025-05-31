@@ -1,7 +1,7 @@
 #!/bin/bash
 
 
-crux=$(realpath "../bin/crux-4.3.Linux.x86_64/bin/crux")
+crux=$(realpath "../bin/crux-lfq")
 fasta_file=$(realpath "../data/Human_ecoli_trypsin_1501v_uniprot_sprot.fasta")
 spectrum_files_folder=$(realpath "../data/spectrum_files")
 results_folder=$(realpath "../results")

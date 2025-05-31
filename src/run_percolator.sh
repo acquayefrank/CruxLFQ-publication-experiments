@@ -2,7 +2,7 @@
 
 
 # This is a Bash Script that runs percolator
-crux=$(realpath "../bin/crux-percolator")
+crux=$(realpath "../bin/crux-lfq")
 results_folder=$(realpath "../results")
 
 
