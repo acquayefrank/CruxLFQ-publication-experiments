@@ -54,3 +54,11 @@ The PR can be viewed [here](https://github.com/crux-toolkit/crux-toolkit/pull/71
   If you choose to compile then run `dotnet publish -c Release -r linux-x64 --self-contained true /p:PublishSingleFile=true`
 
 - Once you have the binary file, place it in `bin` folder
+
+# Sage LFQ
+
+- Download sage from [here](https://github.com/lazear/sage/releases/tag/v0.14.7)
+
+- Untar and copy the sage binary into the `bin` folder.
+
+- Run sage with this shell script: `run_sage.sh`
