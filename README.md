@@ -12,6 +12,7 @@ In order to reporduce the experiments in "Label-free quantification in the Crux 
 - You can change scripts accordingly for the specific platform (OS) you are using.
 - Scripts will be run in order in which it is presented here - from top to bottom.
 - When using crux users would have a seemless pipeline, howver in order to compare tools that are not interoperable a bit more work needs to be done hence this many scripts.
+- It is assumed that results folder will contain a single folder(instance) of any results type e.g. only one instance of sage search results.
 
 # Database Searching:
 
@@ -62,3 +63,34 @@ The PR can be viewed [here](https://github.com/crux-toolkit/crux-toolkit/pull/71
 - Untar and copy the sage binary into the `bin` folder.
 
 - Run sage with this shell script: `run_sage.sh`
+
+- Run merge for the sage data `python merge_sage_data.py` - We run sage for single spectrum files since it's automatically run in MBR mode.
+
+# MaxQuant & Fragpipe
+
+- Download MaxQuant from [here](https://maxquant.org/). Follow the instructions and install it. Once done, Run the experiments ensuring it conforms to Tides params and MBR is turned off.
+  MaxQuant produces a few files but for our use case we are most interested in the one uploaded to [zenodo]()
+
+- Download Fragpipe from [here](https://github.com/Nesvilab/FragPipe/releases). Follow the instructions and install it. Once done, Run the experiments ensuring it conforms to Tides params and the MBR is turned off. Fragpipe produces a few files but for our use case we are most interested in the one uploaded to [zenodo]()
+
+# Data cleaning
+
+- For the sake of convenience, organize these sepecific files into the folder `organized_results` within `results` folder.
+
+- Copy `crux-lfq-mod-pep.txt` from CruxLFQ results folder into `organized_results`
+
+- Copy `FlashLFQ+mods+protein_id_modpep.txt` from FlashLFQ results folder into `organized_results`
+
+- Copy and rename `lfq.tsv` from sage results folder into `organized_results` as `sage_lfq.tsv`
+
+- Copy and rename `peptides.txt` from MaxQuant results frolder into `organized_results` as `maxquant_peptides.txt`
+
+- Copy and rename `combined_peptide.tsv` from Fragpipe results folder into `organized_results` as `ionquant_combined_peptide.tsv`
+
+- Run the command `python clean_data.py`
+
+You can also download the data from [zenodo]()
+
+# Figure 1 plots
+
+- 
