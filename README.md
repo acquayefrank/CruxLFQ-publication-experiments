@@ -97,6 +97,8 @@ The PR can be viewed [here](https://github.com/crux-toolkit/crux-toolkit/pull/71
 
 - Copy and rename `combined_peptide.tsv` from Fragpipe results folder into `organized_results` as `ionquant_combined_peptide.tsv`
 
+- Copy and rename `lfq.mztab` from proteomics-lfq results folder into `organized_results` as `proteomicslfq.mzTab`
+
 - Run the command `python clean_data.py`
 
 You can also download the data from [zenodo]()
