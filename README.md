@@ -73,6 +73,16 @@ The PR can be viewed [here](https://github.com/crux-toolkit/crux-toolkit/pull/71
 
 - Download Fragpipe from [here](https://github.com/Nesvilab/FragPipe/releases). Follow the instructions and install it. Once done, Run the experiments ensuring it conforms to Tides params and the MBR is turned off. Fragpipe produces a few files but for our use case we are most interested in the one uploaded to [zenodo]()
 
+# OpenMS
+
+- Install OpenMS based on the instructions found [here](https://openms.readthedocs.io/en/latest/about/installation/installation-on-gnu-linux.html)
+
+- Download comet from [here](https://github.com/UWPR/Comet/releases/tag/v2025.02.0)
+
+- Place the binary in the `bin` folder, you may need to make it executable
+
+- Run `run_proteomics-lfq.sh`
+
 # Data cleaning
 
 - For the sake of convenience, organize these sepecific files into the folder `organized_results` within `results` folder.
@@ -93,4 +103,4 @@ You can also download the data from [zenodo]()
 
 # Figure 1 plots
 
-- 
+- To plot figure 1 run `python plot_fig1.py`
