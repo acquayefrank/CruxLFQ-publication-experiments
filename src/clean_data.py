@@ -76,6 +76,36 @@ def format_ionquant_lfq(input_file, out_file, q_value_cutoff=0.01):
     df.to_csv(out_file, sep='\t', index=False)
 
 
+def format_proteomics_lfq(input_file, out_file):
+    design = pd.read_csv("design.tsv", sep='\t')
+    
+    index_col = "Fraction_Group"
+    name_col = "Sample"
+
+    rename_map = {}
+    for _, row in design.iterrows():
+       
+        idx = row[index_col]
+        name = row[name_col]
+        rename_map[f'peptide_abundance_study_variable[{idx}]'] = name
+        rename_map[f'peptide_abundance_stdev_study_variable[{idx}]'] = f'{name}_stdev'
+        rename_map[f'peptide_abundance_std_error_study_variable[{idx}]'] = f'{name}_stderr'
+
+    # Read the .mztab file, skipping comments and metadata
+    peptide_rows = []
+    with open(input_file, 'r') as f:
+        for line in f:
+            if line.startswith('PEH'):
+                peptide_rows.append(line.strip().split('\t'))
+            elif line.startswith('PEP'):
+                peptide_rows.append(line.strip().split('\t'))
+    df = pd.DataFrame(peptide_rows[1:], columns=peptide_rows[0])
+    df['id'] = df['sequence']
+    df = df.rename(columns=rename_map)
+    df = df.drop_duplicates(subset='id')
+    df.to_csv(out_file, sep='\t', index=False)
+
+
 def process_all_files(folder_path="../results/organized_results"):
     files = [os.path.join(folder_path, f) for f in os.listdir(folder_path) if os.path.isfile(os.path.join(folder_path, f))]
 
@@ -98,6 +128,8 @@ def process_all_files(folder_path="../results/organized_results"):
                 format_maxquant_lfq(file, output_file)
             elif "ionquant" in file_name.lower():
                 format_ionquant_lfq(file, output_file)
+            elif "proteomics" in file_name.lower():
+                format_proteomics_lfq(file, output_file)
             else:
                 print(f"Unknown file type: {file_name}. Skipping.")
                 continue

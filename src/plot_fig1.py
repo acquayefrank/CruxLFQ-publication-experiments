@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from scipy.stats import gaussian_kde, pearsonr
 
+
 def plot_density_scatter(
     x, y, xlabel, ylabel, out_file, xlim=(10, 40), ylim=(10, 40), fontsize=30
 ):
@@ -50,6 +51,7 @@ def main():
     ion = base + "ionquant_combined_peptide.tsv_formatted"
     maxq = base + "maxquant_peptides.txt_formatted"
     sage = base + "sage_lfq.tsv_formatted"
+    proteomics = base + "proteomicslfq.mzTab_formatted"
 
     # 1. Crux vs Flash
     df_crux = pd.read_csv(crux, sep="\t")
@@ -222,8 +224,8 @@ def main():
     x = np.log2(df9[col_x])
     y = np.log2(df9[col_y])
     plot_density_scatter(
-        x, y,
-        "IonQuant log2 Intensity", "Sage log2 Intensity",
+        y, x,
+        "Sage log2 Intensity", "IonQuant log2 Intensity",
         "Sage_vs_IonQuant_density_scatter_plot.pdf"
     )
 
@@ -241,10 +243,107 @@ def main():
     x = np.log2(df10[col_x])
     y = np.log2(df10[col_y])
     plot_density_scatter(
-        x, y,
-        "MaxQuant log2 Intensity", "Sage log2 Intensity",
+        y, x,
+        "Sage log2 Intensity", "MaxQuant log2 Intensity", 
         "MaxLFQ_vs_Sage_density_scatter_plot.pdf"
     )
+
+    # 11. ProteomicsLFQ vs MaxQuant
+    df_proteomics = pd.read_csv(proteomics, sep="\t")
+    df11 = pd.merge(
+        df_proteomics.sort_values("id"),
+        df_max.sort_values("id"),
+        left_on="id", right_on="id", how="inner"
+    )
+    col_x = "B1"
+    col_y = "Intensity B1"
+    df11[col_x] = df11[col_x].replace(0, np.nan)
+    df11[col_y] = df11[col_y].replace(0, np.nan)
+    df11 = df11.dropna(subset=[col_x, col_y])
+    x = np.log2(df11[col_x])
+    y = np.log2(df11[col_y])
+    plot_density_scatter(
+        y, x,
+        "ProteomicsLFQ log2 Intensity", "MaxQuant log2 Intensity",
+        "ProteomicsLFQ_vs_MaxLFQ_density_scatter_plot.pdf"
+    )
+
+    # 12. ProteomicsLFQ vs Sage
+    df12 = pd.merge(
+        df_proteomics.sort_values("id"),
+        df_sage.sort_values("id"),
+        left_on="id", right_on="id", how="inner"
+    )
+    col_x = "B1"
+    col_y = "B02_001_161103_B1_HCD_OT_4ul.mzML"
+    df12[col_x] = df12[col_x].replace(0, np.nan)
+    df12[col_y] = df12[col_y].replace(0, np.nan)
+    df12 = df12.dropna(subset=[col_x, col_y])
+    x = np.log2(df12[col_x])
+    y = np.log2(df12[col_y])
+    plot_density_scatter(
+        y, x,
+        "ProteomicsLFQ log2 Intensity", "Sage log2 Intensity",
+        "ProteomicsLFQ_vs_Sage_density_scatter_plot.pdf"
+    )
+
+    # 13. ProteomicsLFQ vs IonQuant
+    df13 = pd.merge(
+        df_proteomics.sort_values("id"),
+        df_ion.sort_values("id"),
+        left_on="id", right_on="id", how="inner"
+    )
+    col_x = "B1"
+    col_y = "Exp2_1 Intensity"  
+    df13[col_x] = df13[col_x].replace(0, np.nan)
+    df13[col_y] = df13[col_y].replace(0, np.nan)
+    df13 = df13.dropna(subset=[col_x, col_y])
+    x = np.log2(df13[col_x])
+    y = np.log2(df13[col_y])
+    plot_density_scatter(
+        y, x,
+        "IonQuant log2 Intensity", "ProteomicsLFQ log2 Intensity",
+        "IonQuant_vs_ProteomicsLFQ_density_scatter_plot.pdf"
+    )
+
+    # 14. ProteomicsLFQ vs Flash
+    df14 = pd.merge(
+        df_proteomics.sort_values("id"),
+        df_flash.sort_values("id"),
+        left_on="id", right_on="id", how="inner"
+    )
+    col_x = "B1"
+    col_y = "Intensity_B02_001_161103_B1_HCD_OT_4ul"
+    df14[col_x] = df14[col_x].replace(0, np.nan)
+    df14[col_y] = df14[col_y].replace(0, np.nan)
+    df14 = df14.dropna(subset=[col_x, col_y])
+    x = np.log2(df14[col_x])
+    y = np.log2(df14[col_y])
+    plot_density_scatter(
+        y, x,
+        "Flash log2 Intensity", "ProteomicsLFQ log2 Intensity",
+        "Flash_vs_ProteomicsLFQ_density_scatter_plot.pdf"
+    )
+
+    # 15. ProteomicsLFQ vs Crux
+    df15 = pd.merge(
+        df_proteomics.sort_values("id"),
+        df_crux.sort_values("id"),
+        left_on="id", right_on="id", how="inner"
+    )
+    col_x = "B1"
+    col_y = "Intensity_/home/acquayefrank/CruxLFQ-publication-experiments/data/spectrum_files/B02_001_161103_B1_HCD_OT_4ul.mzML"
+    df15[col_x] = df15[col_x].replace(0, np.nan)
+    df15[col_y] = df15[col_y].replace(0, np.nan)
+    df15 = df15.dropna(subset=[col_x, col_y])
+    x = np.log2(df15[col_x])
+    y = np.log2(df15[col_y])
+    plot_density_scatter(
+        y, x,
+        "Crux log2 Intensity", "ProteomicsLFQ log2 Intensity",
+        "Crux_vs_ProteomicsLFQ_density_scatter_plot.pdf"
+    )
+
 
 if __name__ == "__main__":
     main()
