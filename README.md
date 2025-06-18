@@ -103,6 +103,8 @@ The PR can be viewed [here](https://github.com/crux-toolkit/crux-toolkit/pull/71
 
 You can also download the data from [zenodo]()
 
-# Figure 1 plots
+# Plots
 
 - To plot figure 1 run `python plot_fig1.py`
+
+- To plot figure 2 run `python plot_fig2.py`
