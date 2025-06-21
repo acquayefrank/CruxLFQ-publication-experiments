@@ -13,6 +13,7 @@ In order to reporduce the experiments in "Label-free quantification in the Crux 
 - Scripts will be run in order in which it is presented here - from top to bottom.
 - When using crux users would have a seemless pipeline, howver in order to compare tools that are not interoperable a bit more work needs to be done hence this many scripts.
 - It is assumed that results folder will contain a single folder(instance) of any results type e.g. only one instance of sage search results.
+- Note that all plots will be outputted to the src directory or the directory from which you run the code
 
 # Database Searching:
 
@@ -103,8 +104,18 @@ The PR can be viewed [here](https://github.com/crux-toolkit/crux-toolkit/pull/71
 
 You can also download the data from [zenodo]()
 
+# Benchmarking tests
+
+Owing to the fact that `crux` is a CLI tool we used FlashLFQ from the mzlib library. The binary for our FlashLFQ used can be found here [zenodo]()
+
+Download the PSM file used from here [zenodo]()
+
+You can also just download the results from our timing tests from here [zenodo]()
+
 # Plots
 
 - To plot figure 1 run `python plot_fig1.py`
 
 - To plot figure 2 run `python plot_fig2.py`
+
+- To plot the benchmarking results run `plot_timing_to_measure_runs.py`
