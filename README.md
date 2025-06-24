@@ -118,4 +118,6 @@ You can also just download the results from our timing tests from here [zenodo](
 
 - To plot figure 2 run `python plot_fig2.py`
 
-- To plot the benchmarking results run `plot_timing_to_measure_runs.py`
+- To plot the benchmarking results run `python plot_timing_to_measure_runs.py`
+
+- To generate the pearson correlations run `python stats.py`
