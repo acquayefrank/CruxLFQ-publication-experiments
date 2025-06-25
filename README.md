@@ -123,3 +123,5 @@ You can also just download the results from our timing tests from here [zenodo](
 - To generate the pearson correlations run `python stats.py`
 
 - To generate data matrix run `python gen_matrix.py`
+
+- To generate upset plots run `python plot_upset.py`
