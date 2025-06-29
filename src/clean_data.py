@@ -7,7 +7,7 @@ def format_sage_lfq(input_file, out_file, q_value_cutoff=0.01):
     df = pd.read_csv(input_file, sep='\t')
     df['id'] = df['peptide'].str.replace(r'\[\+57\.0215\]', '', regex=True)
     df['id'] = df['id'].str.replace(r'M\[\+15\.994915\]', 'm', regex=True)
-    df = df[df['q_value_B02_001_161103_B1_HCD_OT_4ul'] <= q_value_cutoff]
+    df = df[df['q_value'] <= q_value_cutoff]
 
     def fix_n_term_mod(x):
         if '[+42.010567]' in x:

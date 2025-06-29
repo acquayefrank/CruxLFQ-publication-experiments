@@ -28,10 +28,6 @@ sets = {
     'ProteomicsLFQ': set(df_proteomics['id'])
 }
 
-# Prepare memberships for upsetplot
-memberships = []
-for name, s in sets.items():
-    memberships.extend([(name,) for _ in s])
 
 # Build a DataFrame for UpSet plot
 all_ids = set.union(*sets.values())
@@ -45,7 +41,7 @@ upset_data = from_memberships(id_to_membership.keys(), data=list(id_to_membershi
 
 # Plot
 plt.figure(figsize=(10, 6))
-UpSet(upset_data, show_counts=True).plot()
+UpSet(upset_data, show_counts=True, sort_by='cardinality').plot()
 plt.title('UpSet Plot of Peptides Across Tools')
 plt.savefig('upset_plot.pdf', dpi=300, bbox_inches='tight')
 plt.close()
