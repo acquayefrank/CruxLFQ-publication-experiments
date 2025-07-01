@@ -3,11 +3,10 @@ import re
 import os
 import traceback
 
-def format_sage_lfq(input_file, out_file, q_value_cutoff=0.01):
+def format_sage_lfq(input_file, out_file):
     df = pd.read_csv(input_file, sep='\t')
     df['id'] = df['peptide'].str.replace(r'\[\+57\.0215\]', '', regex=True)
     df['id'] = df['id'].str.replace(r'M\[\+15\.994915\]', 'm', regex=True)
-    df = df[df['q_value'] <= q_value_cutoff]
 
     def fix_n_term_mod(x):
         if '[+42.010567]' in x:
@@ -119,7 +118,7 @@ def process_all_files(folder_path="../results/organized_results"):
 
         try:
             if "sage" in file_name.lower():
-                format_sage_lfq(file, output_file, q_value_cutoff=1)
+                format_sage_lfq(file, output_file)
             elif "crux" in file_name.lower():
                 format_crux_lfq(file, output_file)
             elif "flash" in file_name.lower():

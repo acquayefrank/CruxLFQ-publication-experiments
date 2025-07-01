@@ -13,7 +13,7 @@ proteomics = base + "proteomicslfq.mzTab_formatted"
 
 df_crux = pd.read_csv(crux, sep="\t")
 df_flash = pd.read_csv(flash, sep="\t")
-df_sage = pd.read_csv(sage, sep="\t")
+df_sage = pd.read_csv(sage, sep="\t", low_memory=False)
 df_ion = pd.read_csv(ion, sep="\t")
 df_max_maxquant = pd.read_csv(maxq, sep="\t")
 df_proteomics = pd.read_csv(proteomics, sep="\t")
@@ -307,7 +307,7 @@ def plot_combined_boxplot(
 
     # Plot each method
     colors = [
-        "lightblue", "lightgreen", "lightyellow", "pink", "lightcoral"
+        "lightblue", "lightgreen", "lightyellow", "pink", "lightcoral", "lightgray"
     ]
     for method_idx in range(num_methods):
         data = [method_data_by_group[method_idx][i] for i in range(num_groups)]
@@ -356,12 +356,10 @@ def plot_combined_boxplot(
     ax.tick_params(axis="y", labelsize=45)
     plt.setp(ax.get_xticklabels(), rotation=75, ha="right")
 
-    # method_labels = [
-    #     "CruxLFQ", "FlashLFQ", "Sage", "MaxQuant", "IonQuant", "ProteomicsLFQ"
-    # ]
     method_labels = [
-        "CruxLFQ", "FlashLFQ", "MaxQuant", "IonQuant", "ProteomicsLFQ"
+        "CruxLFQ", "FlashLFQ", "Sage", "MaxQuant", "IonQuant", "ProteomicsLFQ"
     ]
+   
     handles = [
         plt.Line2D([0], [0], color=colors[i], lw=10, label=method_labels[i])
         for i in range(len(colors))
@@ -377,7 +375,7 @@ def plot_combined_boxplot(
 human_data_prepped = [
     preprocess(HUMAN_CRUX),
     preprocess(HUMAN_FLASH),
-    # preprocess(HUMAN_SAGE),
+    preprocess(HUMAN_SAGE),
     preprocess(HUMAN_MAX_MAXQUANT),
     preprocess(HUMAN_ION),
     preprocess(HUMAN_PROTEOMICS),
@@ -393,7 +391,7 @@ plot_combined_boxplot(
 ecoli_data_prepped = [
     preprocess(ECOLI_CRUX),
     preprocess(ECOLI_FLASH),
-    # preprocess(ECOLI_SAGE),
+    preprocess(ECOLI_SAGE),
     preprocess(ECOLI_MAX_MAXQUANT),
     preprocess(ECOLI_ION),
     preprocess(ECOLI_PROTEOMICS),

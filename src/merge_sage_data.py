@@ -21,7 +21,7 @@ def find_lfq_files(base_dir):
             lfq_files.extend(glob.glob(os.path.join(root, 'lfq.tsv')))
     return lfq_files
 
-def merge_lfq_files(lfq_files, key='peptide'):
+def merge_lfq_files(lfq_files, key='peptide', q_value_cutoff=1):
     """
     Merge multiple 'lfq.tsv' files on a specified key, using parent folder names as suffixes for overlapping columns.
     
@@ -35,6 +35,8 @@ def merge_lfq_files(lfq_files, key='peptide'):
     merged_df = None
     for file in lfq_files:
         df = pd.read_csv(file, sep='\t')  # Assuming tab-separated values
+        df = df[df['q_value'] <= q_value_cutoff]  # Filter rows where q_value is less than or equal to 1
+
         # Extract the parent folder name to use as a suffix
         file_suffix = os.path.basename(os.path.dirname(file))
         # Extract the filename (without extension) for comparison

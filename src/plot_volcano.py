@@ -146,12 +146,13 @@ def volcano_data_fast(df, cols_map, groupA_keys, groupB_keys):
 methods = [
     ('CruxLFQ', crux_cols_map),
     ('FlashLFQ', flash_cols_map),
+    ('SageLFQ', sage_cols_map),
     ('MaxQuant', maxquant_cols_map),
     ('IonQuant', ion_cols_map),
     ('ProteomicsLFQ', proteomics_cols_map)
 ]
 colors = [
-    'tab:blue', 'tab:orange', 'tab:green', 'tab:red', 'tab:purple'
+    'tab:blue', 'tab:orange', 'tab:green', 'tab:red', 'tab:purple', 'tab:gray'
 ]
 group_pairs = [
     (['A1', 'A2', 'A3', 'A4'], ['B1', 'B2', 'B3', 'B4'], 'A/B'),
