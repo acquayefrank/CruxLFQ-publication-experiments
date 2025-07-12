@@ -6,7 +6,7 @@ import numpy as np
 base = "../results/formatted_results/"
 crux = base + "crux-lfq-mod-pep.txt_formatted"
 flash = base + "FlashLFQ+mods+protein_id_modpep.txt_formatted"
-ion = base + "ionquant_combined_peptide.tsv_formatted"
+ion = base + "ionquant_combined_modified_peptide.tsv_formatted"
 maxq = base + "maxquant_peptides.txt_formatted"
 sage = base + "sage_lfq.tsv_formatted"
 proteomics = base + "proteomicslfq.mzTab_formatted"
@@ -178,16 +178,16 @@ max_cols_map = { # MaxLFQ
     "E3": "Exp5_3 MaxLFQ Intensity", "E4": "Exp5_4 MaxLFQ Intensity",
 }
 ion_cols_map = {
-    "A1": "Exp1_1 Intensity", "A2": "Exp1_2 Intensity",
-    "A3": "Exp1_3 Intensity", "A4": "Exp1_4 Intensity",
-    "B1": "Exp2_1 Intensity", "B2": "Exp2_2 Intensity",
-    "B3": "Exp2_3 Intensity", "B4": "Exp2_4 Intensity",
-    "C1": "Exp3_1 Intensity", "C2": "Exp3_2 Intensity",
-    "C3": "Exp3_3 Intensity", "C4": "Exp3_4 Intensity",
-    "D1": "Exp4_1 Intensity", "D2": "Exp4_2 Intensity",
-    "D3": "Exp4_3 Intensity", "D4": "Exp4_4 Intensity",
-    "E1": "Exp5_1 Intensity", "E2": "Exp5_2 Intensity",
-    "E3": "Exp5_3 Intensity", "E4": "Exp5_4 Intensity",
+    "A1": "A_1 Intensity", "A2": "A_2 Intensity",
+    "A3": "A_3 Intensity", "A4": "A_4 Intensity",
+    "B1": "B_1 Intensity", "B2": "B_2 Intensity",
+    "B3": "B_3 Intensity", "B4": "B_4 Intensity",
+    "C1": "C_1 Intensity", "C2": "C_2 Intensity",
+    "C3": "C_3 Intensity", "C4": "C_4 Intensity",
+    "D1": "D_1 Intensity", "D2": "D_2 Intensity",
+    "D3": "D_3 Intensity", "D4": "D_4 Intensity",
+    "E1": "E_1 Intensity", "E2": "E_2 Intensity",
+    "E3": "E_3 Intensity", "E4": "E_4 Intensity",
 }
 maxquant_cols_map = { # MaxQuant directly
     "A1": "Intensity A1", "A2": "Intensity A2",

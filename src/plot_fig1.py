@@ -5,7 +5,7 @@ from scipy.stats import gaussian_kde, pearsonr
 
 
 def plot_density_scatter(
-    x, y, xlabel, ylabel, out_file, xlim=(10, 40), ylim=(10, 40), fontsize=30
+    x, y, xlabel, ylabel, out_file, xlim=(10, 40), ylim=(10, 40), fontsize=36
 ):
     # Convert to numpy arrays to avoid pandas indexing issues
     x = np.asarray(x)
@@ -36,10 +36,10 @@ def plot_density_scatter(
     ax.set_xlabel(xlabel, fontsize=fontsize)
     ax.set_ylabel(ylabel, fontsize=fontsize)
     fig.set_size_inches(10, 8)
-    ax.tick_params(axis="both", which="major", labelsize=20)
+    ax.tick_params(axis="both", which="major", labelsize=28)
     ax.set_xlim(*xlim)
     ax.set_ylim(*ylim)
-    plt.savefig(out_file)
+    plt.savefig(out_file, dpi=300, bbox_inches='tight')
     plt.close(fig)
 
 
@@ -48,7 +48,7 @@ def main():
     base = "../results/formatted_results/"
     crux = base + "crux-lfq-mod-pep.txt_formatted"
     flash = base + "FlashLFQ+mods+protein_id_modpep.txt_formatted"
-    ion = base + "ionquant_combined_peptide.tsv_formatted"
+    ion = base + "ionquant_combined_modified_peptide.tsv_formatted"
     maxq = base + "maxquant_peptides.txt_formatted"
     sage = base + "sage_lfq.tsv_formatted"
     proteomics = base + "proteomicslfq.mzTab_formatted"
@@ -82,7 +82,7 @@ def main():
         left_on="id", right_on="id", how="inner"
     )
     col_x = "Intensity_/home/acquayefrank/CruxLFQ-publication-experiments/data/spectrum_files/B02_001_161103_B1_HCD_OT_4ul.mzML"
-    col_y = "Exp2_1 Intensity"
+    col_y = "B_1 Intensity"
     df2[col_x] = df2[col_x].replace(0, np.nan)
     df2[col_y] = df2[col_y].replace(0, np.nan)
     df2 = df2.dropna(subset=[col_x, col_y])
@@ -141,7 +141,7 @@ def main():
         left_on="id", right_on="id", how="inner"
     )
     col_x = "Intensity_B02_001_161103_B1_HCD_OT_4ul"
-    col_y = "Exp2_1 Intensity"
+    col_y = "B_1 Intensity"
     df5[col_x] = df5[col_x].replace(0, np.nan)
     df5[col_y] = df5[col_y].replace(0, np.nan)
     df5 = df5.dropna(subset=[col_x, col_y])
@@ -197,7 +197,7 @@ def main():
         df_max.sort_values("id"),
         left_on="id", right_on="id", how="inner"
     )
-    col_x = "Exp2_1 Intensity"
+    col_x = "B_1 Intensity"
     col_y = "Intensity B1"
     df8[col_x] = df8[col_x].replace(0, np.nan)
     df8[col_y] = df8[col_y].replace(0, np.nan)
@@ -216,7 +216,7 @@ def main():
         df_sage.sort_values("id"),
         left_on="id", right_on="id", how="inner"
     )
-    col_x = "Exp2_1 Intensity"
+    col_x = "B_1 Intensity"
     col_y = "B02_001_161103_B1_HCD_OT_4ul.mzML"
     df9[col_x] = df9[col_x].replace(0, np.nan)
     df9[col_y] = df9[col_y].replace(0, np.nan)
@@ -294,7 +294,7 @@ def main():
         left_on="id", right_on="id", how="inner"
     )
     col_x = "B1"
-    col_y = "Exp2_1 Intensity"  
+    col_y = "B_1 Intensity"  
     df13[col_x] = df13[col_x].replace(0, np.nan)
     df13[col_y] = df13[col_y].replace(0, np.nan)
     df13 = df13.dropna(subset=[col_x, col_y])

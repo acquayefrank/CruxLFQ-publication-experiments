@@ -57,6 +57,8 @@ The PR can be viewed [here](https://github.com/crux-toolkit/crux-toolkit/pull/71
 
 - Once you have the binary file, place it in `bin` folder
 
+-
+
 # Sage LFQ
 
 - Download sage from [here](https://github.com/lazear/sage/releases/tag/v0.14.7)
@@ -92,11 +94,11 @@ The PR can be viewed [here](https://github.com/crux-toolkit/crux-toolkit/pull/71
 
 - Copy `FlashLFQ+mods+protein_id_modpep.txt` from FlashLFQ results folder into `organized_results`
 
-- Copy and rename `lfq.tsv` from sage results folder into `organized_results` as `sage_lfq.tsv`
+- When you run `python merge_sage_data.py` it writes sage results into `organized_results` as `sage_lfq.tsv`
 
 - Copy and rename `peptides.txt` from MaxQuant results frolder into `organized_results` as `maxquant_peptides.txt`
 
-- Copy and rename `combined_peptide.tsv` from Fragpipe results folder into `organized_results` as `ionquant_combined_peptide.tsv`
+- Copy and rename `combined_modified_peptide.tsv` from Fragpipe results folder into `organized_results` as `ionquant_combined_modified_peptide.tsv`
 
 - Copy and rename `lfq.mztab` from proteomics-lfq results folder into `organized_results` as `proteomicslfq.mzTab`
 

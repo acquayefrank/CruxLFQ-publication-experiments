@@ -95,7 +95,7 @@ class Program
 
         long memoryBefore = Process.GetCurrentProcess().PrivateMemorySize64;
 
-        FlashLfqEngine engine = new FlashLfqEngine(identifications, normalize: false, maxThreads: 1);
+        FlashLfqEngine engine = new FlashLfqEngine(identifications, normalize: true, maxThreads: 1);
 
         long memoryAfter = Process.GetCurrentProcess().PrivateMemorySize64;
         long memoryUsed = memoryAfter - memoryBefore;

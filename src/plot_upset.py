@@ -6,7 +6,7 @@ from upsetplot import UpSet, from_memberships
 base = "../results/formatted_results/"
 crux = base + "crux-lfq-mod-pep.txt_formatted"
 flash = base + "FlashLFQ+mods+protein_id_modpep.txt_formatted"
-ion = base + "ionquant_combined_peptide.tsv_formatted"
+ion = base + "ionquant_combined_modified_peptide.tsv_formatted"
 maxq = base + "maxquant_peptides.txt_formatted"
 sage = base + "sage_lfq.tsv_formatted"
 proteomics = base + "proteomicslfq.mzTab_formatted"

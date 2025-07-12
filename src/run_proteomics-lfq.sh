@@ -159,7 +159,9 @@ ProteomicsLFQ \
 -ids $(for sample in "${samples[@]}"; do echo "$OUTPUT_DIR/${sample%.mzML}.filtered.indexed.idXML"; done) \
 -out "$OUTPUT_DIR/lfq.mzTab" \
 -out_cxml "$OUTPUT_DIR/lfq.consensusXML" \
--design "$DESIGN_FILE"
+-design "$DESIGN_FILE" \
+-targeted_only true \
+-ProteinQuantification:consensus:normalize
 
 echo "✅ Pipeline finished successfully!"
 echo "Results saved in: $OUTPUT_DIR"

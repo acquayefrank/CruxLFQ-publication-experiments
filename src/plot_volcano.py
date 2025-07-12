@@ -7,7 +7,7 @@ from scipy.stats import ttest_ind
 base = "../results/formatted_results/"
 crux = base + "crux-lfq-mod-pep.txt_formatted"
 flash = base + "FlashLFQ+mods+protein_id_modpep.txt_formatted"
-ion = base + "ionquant_combined_peptide.tsv_formatted"
+ion = base + "ionquant_combined_modified_peptide.tsv_formatted"
 maxq = base + "maxquant_peptides.txt_formatted"
 sage = base + "sage_lfq.tsv_formatted"
 proteomics = base + "proteomicslfq.mzTab_formatted"
@@ -92,16 +92,16 @@ max_cols_map = { # MaxLFQ
     "E3": "Exp5_3 MaxLFQ Intensity", "E4": "Exp5_4 MaxLFQ Intensity",
 }
 ion_cols_map = {
-    "A1": "Exp1_1 Intensity", "A2": "Exp1_2 Intensity",
-    "A3": "Exp1_3 Intensity", "A4": "Exp1_4 Intensity",
-    "B1": "Exp2_1 Intensity", "B2": "Exp2_2 Intensity",
-    "B3": "Exp2_3 Intensity", "B4": "Exp2_4 Intensity",
-    "C1": "Exp3_1 Intensity", "C2": "Exp3_2 Intensity",
-    "C3": "Exp3_3 Intensity", "C4": "Exp3_4 Intensity",
-    "D1": "Exp4_1 Intensity", "D2": "Exp4_2 Intensity",
-    "D3": "Exp4_3 Intensity", "D4": "Exp4_4 Intensity",
-    "E1": "Exp5_1 Intensity", "E2": "Exp5_2 Intensity",
-    "E3": "Exp5_3 Intensity", "E4": "Exp5_4 Intensity",
+    "A1": "A_1 Intensity", "A2": "A_2 Intensity",
+    "A3": "A_3 Intensity", "A4": "A_4 Intensity",
+    "B1": "B_1 Intensity", "B2": "B_2 Intensity",
+    "B3": "B_3 Intensity", "B4": "B_4 Intensity",
+    "C1": "C_1 Intensity", "C2": "C_2 Intensity",
+    "C3": "C_3 Intensity", "C4": "C_4 Intensity",
+    "D1": "D_1 Intensity", "D2": "D_2 Intensity",
+    "D3": "D_3 Intensity", "D4": "D_4 Intensity",
+    "E1": "E_1 Intensity", "E2": "E_2 Intensity",
+    "E3": "E_3 Intensity", "E4": "E_4 Intensity",
 }
 maxquant_cols_map = { # MaxQuant directly
     "A1": "Intensity A1", "A2": "Intensity A2",
@@ -143,6 +143,59 @@ def volcano_data_fast(df, cols_map, groupA_keys, groupB_keys):
     tstat, pvals = ttest_ind(logA.values, logB.values, axis=1, equal_var=False, nan_policy='omit')
     return log2fc, -np.log10(pvals)
 
+# --- Improved volcano plot function ---
+def volcano_data_improved(df, cols_map, groupA_keys, groupB_keys, min_valid_per_group=2):
+    """
+    Improved volcano plot data generation with better statistical handling
+    """
+    groupA = [cols_map[k] for k in groupA_keys if cols_map[k] in df.columns]
+    groupB = [cols_map[k] for k in groupB_keys if cols_map[k] in df.columns]
+    
+    # Replace 0 with NaN for proper handling of missing values
+    dataA = df[groupA].replace(0, np.nan)
+    dataB = df[groupB].replace(0, np.nan)
+    
+    # More flexible filtering: require minimum number of valid values per group
+    maskA = dataA.notna().sum(axis=1) >= min_valid_per_group
+    maskB = dataB.notna().sum(axis=1) >= min_valid_per_group
+    mask = maskA & maskB
+    
+    dataA_filtered = dataA[mask]
+    dataB_filtered = dataB[mask]
+    
+    # Log2 transform with small offset to handle edge cases
+    epsilon = 1e-8
+    logA = np.log2(dataA_filtered + epsilon)
+    logB = np.log2(dataB_filtered + epsilon)
+    
+    # Calculate means ignoring NaN values
+    meanA = logA.mean(axis=1, skipna=True)
+    meanB = logB.mean(axis=1, skipna=True)
+    log2fc = meanA - meanB
+    
+    # More robust t-test handling
+    pvals = []
+    for i in range(len(logA)):
+        groupA_vals = logA.iloc[i].dropna().values
+        groupB_vals = logB.iloc[i].dropna().values
+        
+        if len(groupA_vals) >= 2 and len(groupB_vals) >= 2:
+            try:
+                _, pval = ttest_ind(groupA_vals, groupB_vals, equal_var=False)
+                pvals.append(pval)
+            except:
+                pvals.append(1.0)  # Conservative p-value for failed tests
+        else:
+            pvals.append(1.0)
+    
+    pvals = np.array(pvals)
+    
+    # Handle edge cases in p-values
+    pvals = np.clip(pvals, 1e-300, 1.0)  # Avoid log(0)
+    neglog10p = -np.log10(pvals)
+    
+    return log2fc, neglog10p, mask.sum()
+
 methods = [
     ('CruxLFQ', crux_cols_map),
     ('FlashLFQ', flash_cols_map),
@@ -161,6 +214,69 @@ group_pairs = [
     (['A1', 'A2', 'A3', 'A4'], ['E1', 'E2', 'E3', 'E4'], 'A/E'),
 ]
 
+# --- Enhanced plotting function ---
+def create_enhanced_volcano_plots():
+    """
+    Create volcano plots with LFQbench-style enhancements
+    Layout: Methods (software) as columns, Comparisons as rows (same as LFQbench)
+    """
+    # LFQbench-style layout: methods as columns, comparisons as rows
+    fig, axes = plt.subplots(len(group_pairs), len(methods), 
+                            figsize=(4*len(methods), 3.5*len(group_pairs)), 
+                            sharey='row', sharex=False)
+    if len(methods) == 1:
+        axes = axes[:, None]
+    if len(group_pairs) == 1:
+        axes = axes[None, :]
+    
+    # Enhanced styling similar to LFQbench
+    plt.style.use('seaborn-v0_8-whitegrid')  # More professional look
+    
+    for row, (groupA, groupB, label) in enumerate(group_pairs):
+        for col, ((method, cmap), color) in enumerate(zip(methods, colors)):
+            ax = axes[row, col]
+            
+            # Use improved function
+            log2fc, neglog10p, n_peptides = volcano_data_improved(df, cmap, groupA, groupB)
+            
+            # Enhanced scatter plot with LFQbench-style aesthetics
+            scatter = ax.scatter(log2fc, neglog10p, alpha=0.5, s=8, 
+                               color=color, edgecolors='none')
+            
+            # Standard significance thresholds (LFQbench style)
+            ax.axvline(x=1, color='red', linestyle='--', lw=0.8, alpha=0.8)
+            ax.axvline(x=-1, color='red', linestyle='--', lw=0.8, alpha=0.8)
+            ax.axhline(y=-np.log10(0.05), color='red', linestyle='--', lw=0.8, alpha=0.8)  # p=0.05
+            
+            # Better axis formatting (LFQbench style)
+            ax.set_xlabel(f'log₂ fold change', fontsize=9)
+            if row == 0:  # Only show method name in top row
+                ax.set_title(f'{method}', fontsize=10, fontweight='bold')
+            ax.grid(True, alpha=0.2, linewidth=0.5)
+            
+            # Set consistent axis limits across all plots
+            ax.set_xlim(-4, 4)
+            ax.set_ylim(0, 8)
+        
+        # Row labels (LFQbench style - comparison labels on left)
+        axes[row, 0].set_ylabel(f'-log₁₀(p-value)\n{label}', fontsize=9)
+    
+    # Add overall title
+    fig.suptitle('Volcano Plots: Differential Expression Analysis', fontsize=12, fontweight='bold', y=0.98)
+    
+    plt.tight_layout(rect=[0, 0, 1, 0.96])  # Leave space for suptitle
+    plt.savefig('volcano_enhanced.pdf', dpi=300, bbox_inches='tight')
+    plt.savefig('volcano_enhanced.png', dpi=300, bbox_inches='tight')
+    plt.close()
+    
+    print("Enhanced volcano plots saved as 'volcano_enhanced.pdf' and 'volcano_enhanced.png'")
+    print(f"Layout: {len(methods)} methods × {len(group_pairs)} comparisons (LFQbench style)")
+
+# Replace the original plotting code with enhanced version
+create_enhanced_volcano_plots()
+
+# Optional: Also create the original version for comparison
+print("Creating original volcano plot...")
 fig, axes = plt.subplots(len(group_pairs), len(methods), figsize=(6*len(methods), 5*len(group_pairs)), sharey='row')
 if len(methods) == 1:
     axes = axes[:, None]
@@ -178,5 +294,6 @@ for row, (groupA, groupB, label) in enumerate(group_pairs):
         ax.axhline(y=2, color='grey', linestyle='--', lw=1)
     axes[row,0].set_ylabel('-log10(p-value)\n%s' % label)
 plt.tight_layout()
-plt.savefig('volcano.pdf')
+plt.savefig('volcano_original.pdf')
 plt.close()
+print("Original volcano plot saved as 'volcano_original.pdf'")
