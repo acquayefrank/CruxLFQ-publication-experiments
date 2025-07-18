@@ -11,7 +11,7 @@ In order to reporduce the experiments in "Label-free quantification in the Crux 
 - Code is found in `src`, hence each time an instruction is provided to run it is assumed the user is running from `src`.
 - You can change scripts accordingly for the specific platform (OS) you are using.
 - Scripts will be run in order in which it is presented here - from top to bottom.
-- When using crux users would have a seemless pipeline, howver in order to compare tools that are not interoperable a bit more work needs to be done hence this many scripts.
+- When using crux users would have a seemless pipeline, however in order to compare tools that are not interoperable a bit more work needs to be done hence this many scripts.
 - It is assumed that results folder will contain a single folder(instance) of any results type e.g. only one instance of sage search results.
 - Note that all plots will be outputted to the src directory or the directory from which you run the code
 
