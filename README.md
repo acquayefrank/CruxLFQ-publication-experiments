@@ -52,7 +52,7 @@ The PR can be viewed [here](https://github.com/crux-toolkit/crux-toolkit/pull/71
 
 - Once it's downloaded place this file in the `bin` folder and run the command `run_crux_to_flash.sh`
 
-- In order to perform benchmarking tests as well as use the search results from `Tide` it is easier to use FlashLFQ as a library within [mzlib](https://www.nuget.org/packages/mzLib/). You can find the code for our FlashLFQ wrapper in `src/FlashLFQWrapper`, you can either compile the code yourself or download a compiled version from [zenodo](). \
+- In order to perform benchmarking tests as well as use the search results from `Tide` it is easier to use FlashLFQ as a library within [mzlib](https://www.nuget.org/packages/mzLib/). You can find the code for our FlashLFQ wrapper in `src/FlashLFQWrapper`, you can either compile the code yourself or download a compiled version from [zenodo](https://zenodo.org/records/15548203). \
   If you choose to compile then run `dotnet publish -c Release -r linux-x64 --self-contained true /p:PublishSingleFile=true`
 
 - Once you have the binary file, place it in `bin` folder
@@ -72,9 +72,9 @@ The PR can be viewed [here](https://github.com/crux-toolkit/crux-toolkit/pull/71
 # MaxQuant & Fragpipe
 
 - Download MaxQuant from [here](https://maxquant.org/). Follow the instructions and install it. Once done, Run the experiments ensuring it conforms to Tides params and MBR is turned off.
-  MaxQuant produces a few files but for our use case we are most interested in the one uploaded to [zenodo]()
+  MaxQuant produces a few files but for our use case we are most interested in the one uploaded to [zenodo](https://zenodo.org/records/15548203)
 
-- Download Fragpipe from [here](https://github.com/Nesvilab/FragPipe/releases). Follow the instructions and install it. Once done, Run the experiments ensuring it conforms to Tides params and the MBR is turned off. Fragpipe produces a few files but for our use case we are most interested in the one uploaded to [zenodo]()
+- Download Fragpipe from [here](https://github.com/Nesvilab/FragPipe/releases). Follow the instructions and install it. Once done, Run the experiments ensuring it conforms to Tides params and the MBR is turned off. Fragpipe produces a few files but for our use case we are most interested in the one uploaded to [zenodo](https://zenodo.org/records/15548203)
 
 # OpenMS
 
@@ -104,15 +104,15 @@ The PR can be viewed [here](https://github.com/crux-toolkit/crux-toolkit/pull/71
 
 - Run the command `python clean_data.py`
 
-You can also download the data from [zenodo]()
+You can also download the data from [zenodo](https://zenodo.org/records/15548203)
 
 # Benchmarking tests
 
-Owing to the fact that `crux` is a CLI tool we used FlashLFQ from the mzlib library. The binary for our FlashLFQ used can be found here [zenodo]()
+Owing to the fact that `crux` is a CLI tool we used FlashLFQ from the mzlib library. The binary for our FlashLFQ used can be found here [zenodo](https://zenodo.org/records/15548203)
 
-Download the PSM file used from here [zenodo]()
+Download the PSM file used from here [zenodo](https://zenodo.org/records/15548203)
 
-You can also just download the results from our timing tests from here [zenodo]()
+You can also just download the results from our timing tests from here [zenodo](https://zenodo.org/records/15548203)
 
 # Plots
 
@@ -129,3 +129,4 @@ You can also just download the results from our timing tests from here [zenodo](
 - To generate upset plots run `python plot_upset.py`
 
 - To generate volcano plots run `python plot_volcano.py`
+
