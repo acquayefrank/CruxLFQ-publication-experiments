@@ -5,8 +5,8 @@ from scipy.stats import ttest_ind
 
 # --- Data loading and merging (same as plot_fig2.py) ---
 base = "../results/formatted_results/"
-crux = base + "crux-lfq-mod-pep.txt_formatted"
-flash = base + "FlashLFQ+mods+protein_id_modpep.txt_formatted"
+crux = base + "crux-lfq-mod-pep-in.txt_formatted"
+flash = base + "FlashLFQ+mods+protein_id_modpep-in.txt_formatted"
 ion = base + "ionquant_combined_modified_peptide.tsv_formatted"
 maxq = base + "maxquant_peptides.txt_formatted"
 sage = base + "sage_lfq.tsv_formatted"
@@ -143,23 +143,6 @@ LFQBENCH_CONFIG = {
     }
 }
 
-# # Filter for peptides quantified by all methods (no missing values)
-# # Identify all intensity columns from each method
-# all_intensity_cols = []
-# all_intensity_cols += list(crux_cols_map.values())
-# all_intensity_cols += list(flash_cols_map.values())
-# all_intensity_cols += list(sage_cols_map.values())
-# all_intensity_cols += list(max_cols_map.values())
-# all_intensity_cols += list(ion_cols_map.values())
-# all_intensity_cols += list(maxquant_cols_map.values())
-# all_intensity_cols += list(proteomics_cols_map.values())
-# # Only keep columns that exist in the merged DataFrame
-# all_intensity_cols = [col for col in all_intensity_cols if col in df.columns]
-# # Filter: keep only rows where all intensity columns are not null and >0
-# df = df.dropna(subset=all_intensity_cols)
-# df = df[(df[all_intensity_cols] > 0).all(axis=1)]
-# ###############################################################
-
 # --- LFQbench-style MA plot function (matching original plot axes) ---
 def ma_plot_data_lfqbench(df, cols_map, groupA_keys, groupB_keys, group_name, min_valid_per_group=1):
     """
@@ -250,25 +233,29 @@ def ma_plot_data_lfqbench(df, cols_map, groupA_keys, groupB_keys, group_name, mi
     
     return log2_groupB_intensity, log2_fold_change, len(log2_groupB_intensity), peptide_types, group_name
 
-# --- LFQbench-style MA plotting function ---
-def create_lfqbench_ma_plots():
+# --- Expected fold changes for each comparison ---
+def get_expected_fold_change(group_letter):
     """
-    Create MA plots matching LFQbench R package style exactly:
-    - X-axis: Log₁₀(average intensity)
-    - Y-axis: Log₁₀ fold change
-    - Methods as rows, Comparisons as columns
-    - Green and orange colors matching original
+    Get the expected log2 fold change for E.coli peptides based on the experimental design
+    Human: always 1:1 (no change) = 0 on log2 scale
+    E.coli: varies by group
+    """
+    expected_ratios = {
+        'B': 1.5,   # E.coli 1.5:1 = log2(1/1.5) = -0.585
+        'C': 2.0,   # E.coli 2:1 = log2(1/2) = -1.0
+        'D': 2.5,   # E.coli 2.5:1 = log2(1/2.5) = -1.322
+        'E': 3.0    # E.coli 3:1 = log2(1/3) = -1.585
+    }
+    return np.log2(1 / expected_ratios.get(group_letter, 1.0))
+
+# --- Enhanced LFQbench-style MA plotting function with box plots ---
+def create_lfqbench_ma_plots_with_boxplots():
+    """
+    Create MA plots with box plots on the right side
+    Left: MA plot (X: Log₂ intensity, Y: Log₂ fold change)
+    Right: Box plot showing fold change distributions by species
     """
     
-    # methods = [
-    #     ('CruxLFQ', crux_cols_map),
-    #     ('FlashLFQ', flash_cols_map),
-    #     ('SageLFQ', sage_cols_map),
-    #     ('IonQuant', ion_cols_map),
-    #     ('MaxQuant', maxquant_cols_map),
-    #     ('ProteomicsLFQ', proteomics_cols_map)
-    # ]
-
     methods = [
         ('IonQuant', ion_cols_map),
         ('MaxQuant', maxquant_cols_map),
@@ -282,24 +269,29 @@ def create_lfqbench_ma_plots():
         (['A1', 'A2', 'A3', 'A4'], ['E1', 'E2', 'E3', 'E4'], 'Human 1:1\nEcoli 1:3', 'E'),
     ]
     
-    # Create figure with layout: 6 methods × 4 comparisons
-    fig, axes = plt.subplots(len(methods), len(group_pairs), 
-                            figsize=(20, 24), 
-                            sharey=False, sharex=False)
+    # Create figure with subplots: each "cell" has 2 subplots (MA plot + box plot)
+    fig = plt.figure(figsize=(28, 18))
     
-    # Ensure axes is always 2D array
-    if len(group_pairs) == 1:
-        axes = axes[:, None]
-    if len(methods) == 1:
-        axes = axes[None, :]
+    # Create a grid: 3 rows (methods) x 8 columns (4 comparisons × 2 subplots each)
+    n_methods = len(methods)
+    n_comparisons = len(group_pairs)
     
-    # Set style matching original
-    plt.style.use('default')
+    # Use GridSpec for more control over subplot spacing
+    from matplotlib.gridspec import GridSpec
+    gs = GridSpec(n_methods, n_comparisons * 2, 
+                  figure=fig,
+                  width_ratios=[3, 1] * n_comparisons,  # MA plot wider than box plot
+                  hspace=0.25, wspace=0.15)
+    
     fig.patch.set_facecolor('white')
     
     for row, (method, cmap) in enumerate(methods):
         for col, (groupA, groupB, label, group_letter) in enumerate(group_pairs):
-            ax = axes[row, col]
+            
+            # Create MA plot (left subplot)
+            ax_ma = fig.add_subplot(gs[row, col*2])
+            # Create box plot (right subplot)  
+            ax_box = fig.add_subplot(gs[row, col*2 + 1])
             
             # Get data using MA plot calculation
             print(f"\nProcessing {method} - {label}:")
@@ -307,27 +299,36 @@ def create_lfqbench_ma_plots():
             
             if len(log2_groupB_intensity) == 0:
                 print(f"No data for {method} - {label}")
-                ax.text(0.5, 0.5, 'No Data', transform=ax.transAxes, 
-                       ha='center', va='center', fontsize=12, color='red')
-                # Still set up the axes even with no data
-                ax.set_xlim(18, 30)
-                ax.set_ylim(-3, 3)
-                ax.grid(True, alpha=0.3, linewidth=0.5, color='lightgray')
-                ax.set_facecolor('white')
+                # Handle no data case for both plots
+                for ax in [ax_ma, ax_box]:
+                    ax.text(0.5, 0.5, 'No Data', transform=ax.transAxes, 
+                           ha='center', va='center', fontsize=12, color='red')
+                
+                # Set up MA plot axes
+                ax_ma.set_xlim(22, 36)
+                ax_ma.set_ylim(-3, 3)
+                ax_ma.grid(True, alpha=0.3, linewidth=0.5, color='lightgray')
+                ax_ma.set_facecolor('white')
+                
+                # Set up box plot axes
+                ax_box.set_xlim(-0.5, 1.5)
+                ax_box.set_ylim(-3, 3)
+                ax_box.grid(True, alpha=0.3, linewidth=0.5, color='lightgray')
+                ax_box.set_facecolor('white')
                 continue
             
+            # ===== MA PLOT (LEFT) =====
             # Create scatter plot with species-based colors
-            # Green for human peptides, Orange for E.coli peptides
             human_mask = np.array([t == 'human' for t in peptide_types])
             ecoli_mask = np.array([t == 'ecoli' for t in peptide_types])
             unknown_mask = np.array([t == 'unknown' for t in peptide_types])
             
-            # Determine which dataset is larger and plot larger one first (bottom), smaller one on top
+            # Count peptides by species
             human_count = human_mask.sum()
             ecoli_count = ecoli_mask.sum()
             unknown_count = unknown_mask.sum()
             
-            # Create list of (count, mask, color, species_label) tuples and sort by count (descending)
+            # Create list of (count, mask, color, species_label) and plot largest first
             datasets = []
             if unknown_count > 0:
                 datasets.append((unknown_count, unknown_mask, '#808080', 'Unknown'))
@@ -339,114 +340,197 @@ def create_lfqbench_ma_plots():
             # Sort by count (largest first) so smaller datasets are plotted on top
             datasets.sort(key=lambda x: x[0], reverse=True)
             
-            # Plot in order: largest to smallest (smaller datasets on top)
+            # Plot scatter points
             for count, mask, color, species_label in datasets:
-                ax.scatter(log2_groupB_intensity[mask], log2_fold_change[mask], 
-                          alpha=0.7, s=2, c=color, edgecolors='none', label=f'{species_label} (n={count})')
+                ax_ma.scatter(log2_groupB_intensity[mask], log2_fold_change[mask], 
+                            alpha=0.7, s=2, c=color, edgecolors='none', 
+                            label=f'{species_label} (n={count})')
             
             # Add horizontal reference line at y=0
-            ax.axhline(y=0, color='gray', linestyle='-', lw=0.5, alpha=0.7)
+            ax_ma.axhline(y=0, color='gray', linestyle='-', lw=0.5, alpha=0.7)
             
-            # Set axis limits matching the original image exactly
-            ax.set_xlim(18, 30)  # X-axis range from original
-            ax.set_ylim(-3, 3)   # Y-axis range from original
+            # Set MA plot limits and styling
+            ax_ma.set_xlim(22, 36)
+            ax_ma.set_xticks([22, 24, 26, 28, 30, 32, 34, 36])
+            ax_ma.set_ylim(-3, 3)
             
-            # Grid and styling to match original exactly
-            ax.grid(True, alpha=0.2, linewidth=0.5, color='lightgray')
-            ax.set_facecolor('white')  # White background instead of light gray
+            # Grid and styling
+            ax_ma.grid(True, alpha=0.2, linewidth=0.5, color='lightgray')
+            ax_ma.set_facecolor('white')
+            ax_ma.spines['top'].set_visible(False)
+            ax_ma.spines['right'].set_visible(False)
+            ax_ma.spines['left'].set_linewidth(0.8)
+            ax_ma.spines['bottom'].set_linewidth(0.8)
             
-            # Remove top and right spines to match original
-            ax.spines['top'].set_visible(False)
-            ax.spines['right'].set_visible(False)
-            ax.spines['left'].set_linewidth(0.8)
-            ax.spines['bottom'].set_linewidth(0.8)
-            ax.spines['left'].set_color('black')
-            ax.spines['bottom'].set_color('black')
+            # ===== BOX PLOT (RIGHT) =====
+            # Prepare data for box plot
+            box_data = []
+            box_labels = []
+            box_colors = []
             
-            # Labels and titles matching original exactly
-            if row == 0:
-                ax.set_title(label, fontsize=11, fontweight='bold', pad=15)
+            # Get expected fold change for this comparison
+            expected_ecoli_fc = get_expected_fold_change(group_letter)
             
-            # Method names on the left - moved further left to prevent overlap
-            if col == 0:
-                ax.text(-0.18, 0.5, method, 
-                       transform=ax.transAxes, rotation=90, 
-                       va='center', ha='center', fontsize=10, fontweight='bold')
+            if human_count > 0:
+                box_data.append(log2_fold_change[human_mask])
+                box_labels.append(f'Human\n(n={human_count})')
+                box_colors.append('#228B22')
             
-            # Axis labels - specific to each comparison group
-            if row == len(methods) - 1:
-                ax.set_xlabel(f'Log₂({group_letter})', fontsize=10, fontweight='bold')
-            else:
-                ax.set_xticklabels([])
+            if ecoli_count > 0:
+                box_data.append(log2_fold_change[ecoli_mask])
+                box_labels.append(f'E.coli\n(n={ecoli_count})')
+                box_colors.append('#FF8C00')
+            
+            if len(box_data) > 0:
+                # Create box plot
+                bp = ax_box.boxplot(box_data, labels=box_labels, patch_artist=True,
+                                    widths=0.7,  # Increase this value for wider boxes
+                                   boxprops=dict(linewidth=1.5),
+                                   medianprops=dict(linewidth=2, color='black'),
+                                   whiskerprops=dict(linewidth=1.5),
+                                   capprops=dict(linewidth=1.5),
+                                   flierprops=dict(marker='o', markersize=3, alpha=0.6))
                 
+                # Color the boxes
+                for patch, color in zip(bp['boxes'], box_colors):
+                    patch.set_facecolor(color)
+                    patch.set_alpha(0.7)
+            
+            # Add reference lines on box plot
+            ax_box.axhline(y=0, color='gray', linestyle='-', lw=1, alpha=0.7, label='No change')
+            if group_letter in ['B', 'C', 'D', 'E']:
+                ax_box.axhline(y=expected_ecoli_fc, color='red', linestyle='--', lw=1, alpha=0.8,
+                              label=f'Expected E.coli: {expected_ecoli_fc:.2f}')
+            
+            # Box plot styling
+            ax_box.set_ylim(-3, 3)
+            ax_box.grid(True, alpha=0.2, linewidth=0.5, color='lightgray')
+            ax_box.set_facecolor('white')
+            ax_box.spines['top'].set_visible(False)
+            ax_box.spines['right'].set_visible(False)
+            ax_box.spines['left'].set_linewidth(0.8)
+            ax_box.spines['bottom'].set_linewidth(0.8)
+            
+            # Rotate box plot labels
+            ax_box.tick_params(axis='x', rotation=45, labelsize=8)
+            ax_box.tick_params(axis='y', labelsize=9)
+            
+            # ===== LABELS AND TITLES =====
+            # Titles (only on top row)
+            if row == 0:
+                ax_ma.set_title(label, fontsize=11, fontweight='bold', pad=15)
+            
+            # Method names on the left
             if col == 0:
-                ax.set_ylabel('Log₂ fold change', fontsize=9, fontweight='bold')
+                ax_ma.text(-0.18, 0.5, method, 
+                          transform=ax_ma.transAxes, rotation=90, 
+                          va='center', ha='center', fontsize=10, fontweight='bold')
+            
+            # X-axis labels (only on bottom row)
+            if row == len(methods) - 1:
+                ax_ma.set_xlabel(f'Log₂({group_letter})', fontsize=10, fontweight='bold')
+                ax_box.set_xlabel('Species', fontsize=9, fontweight='bold')
             else:
-                ax.set_yticklabels([])
+                ax_ma.set_xticklabels([])
+                ax_box.set_xticklabels([])
             
-            # Tick parameters matching original
-            ax.tick_params(axis='both', which='major', labelsize=9, 
-                          length=4, width=0.8, color='black')
+            # Y-axis labels (only on leftmost column)
+            if col == 0:
+                ax_ma.set_ylabel('Log₂ fold change', fontsize=9, fontweight='bold')
+            else:
+                ax_ma.set_yticklabels([])
+                ax_box.set_yticklabels([])
             
-            # Add tick marks on all sides like original
-            ax.tick_params(axis='x', which='major', top=True, bottom=True)
-            ax.tick_params(axis='y', which='major', left=True, right=True)
+            # Tick parameters
+            ax_ma.tick_params(axis='both', which='major', labelsize=9, 
+                             length=4, width=0.8, color='black')
+            ax_box.tick_params(axis='both', which='major', labelsize=8,
+                              length=4, width=0.8, color='black')
             
-            # Add number of points text in top-right corner
+            # Add tick marks on all sides
+            ax_ma.tick_params(axis='x', which='major', top=True, bottom=True)
+            ax_ma.tick_params(axis='y', which='major', left=True, right=True)
+            
+            # Add number of points text on MA plot
             if len(log2_groupB_intensity) > 0:
-                ax.text(0.95, 0.95, f'n={n_peptides}', 
-                       transform=ax.transAxes, fontsize=8, 
-                       ha='right', va='top', 
-                       bbox=dict(boxstyle='round,pad=0.3', facecolor='white', alpha=0.8, edgecolor='gray'))
+                ax_ma.text(0.95, 0.95, f'n={n_peptides}', 
+                          transform=ax_ma.transAxes, fontsize=8, 
+                          ha='right', va='top', 
+                          bbox=dict(boxstyle='round,pad=0.3', facecolor='white', 
+                                   alpha=0.8, edgecolor='gray'))
     
-    # Main title matching original exactly
-    fig.suptitle('Peptide-Level Quantification', fontsize=16, fontweight='bold', y=0.96)
+    # Main title
+    fig.suptitle('Peptide-Level Quantification with Distribution Analysis', 
+                 fontsize=16, fontweight='bold', y=0.96)
     
-    # Adjust layout to match original spacing
-    plt.tight_layout(rect=[0.08, 0.03, 1, 0.93])  # Increased left margin for method labels
-    plt.subplots_adjust(wspace=0.15, hspace=0.20)  # Increased hspace to prevent y-axis text overlap
+    # Adjust layout
+    plt.tight_layout(rect=[0.06, 0.03, 1, 0.93])
     
     # Save plots
-    plt.savefig('lfqbench_ma_plots_matching_original.pdf', dpi=300, bbox_inches='tight', facecolor='white')
-    plt.savefig('lfqbench_ma_plots_matching_original.png', dpi=300, bbox_inches='tight', facecolor='white')
+    plt.savefig('lfqbench_ma_plots_with_boxplots.pdf', dpi=300, bbox_inches='tight', facecolor='white')
+    plt.savefig('lfqbench_ma_plots_with_boxplots.png', dpi=300, bbox_inches='tight', facecolor='white')
     plt.show()
     
-    print("LFQbench-style MA plots saved (matching original image exactly)")
-    print(f"Layout: {len(methods)} methods × {len(group_pairs)} comparisons")
-    print("X-axis: Log₂(B), Log₂(C), Log₂(D), Log₂(E) - specific to each comparison group")
-    print("Y-axis: Log₂ fold change") 
+    print("LFQbench-style MA plots with box plots saved")
+    print(f"Layout: {len(methods)} methods × {len(group_pairs)} comparisons (MA + Box plots)")
+    print("Left panels: MA plots (X: Log₂ intensity, Y: Log₂ fold change)")
+    print("Right panels: Box plots showing fold change distributions by species")
     print("Colors: Green (human peptides), Orange (E.coli peptides)")
-    print(f"Methods included: {', '.join([method[0] for method in methods])}")
     
-    # Generate summary statistics
-    print("\nSummary Statistics:")
-    print("-" * 60)
+    # Generate detailed summary statistics
+    print("\nDetailed Summary Statistics:")
+    print("=" * 80)
     for method_name, cols_map in methods:
         print(f"\n{method_name}:")
+        print("-" * 40)
         for groupA, groupB, label, group_letter in group_pairs:
-            _, _, n_peptides, peptide_types, _ = ma_plot_data_lfqbench(df, cols_map, groupA, groupB, group_letter)
+            log2_groupB_intensity, log2_fold_change, n_peptides, peptide_types, _ = ma_plot_data_lfqbench(df, cols_map, groupA, groupB, group_letter)
             if n_peptides > 0:
-                human_count = sum(1 for t in peptide_types if t == 'human')
-                ecoli_count = sum(1 for t in peptide_types if t == 'ecoli')
-                unknown_count = sum(1 for t in peptide_types if t == 'unknown')
-                print(f"  {group_letter}: {n_peptides} peptides ({human_count} human, {ecoli_count} E.coli, {unknown_count} unknown)")
+                human_mask = np.array([t == 'human' for t in peptide_types])
+                ecoli_mask = np.array([t == 'ecoli' for t in peptide_types])
+                unknown_mask = np.array([t == 'unknown' for t in peptide_types])
+                
+                human_count = human_mask.sum()
+                ecoli_count = ecoli_mask.sum()
+                unknown_count = unknown_mask.sum()
+                
+                expected_ecoli_fc = get_expected_fold_change(group_letter)
+                
+                print(f"  {group_letter} vs A: {n_peptides} total peptides")
+                print(f"    Human: {human_count} peptides")
+                if human_count > 0:
+                    human_fc = log2_fold_change[human_mask]
+                    print(f"      Mean fold change: {human_fc.mean():.3f} ± {human_fc.std():.3f}")
+                    print(f"      Median fold change: {np.median(human_fc):.3f}")
+                
+                print(f"    E.coli: {ecoli_count} peptides")
+                if ecoli_count > 0:
+                    ecoli_fc = log2_fold_change[ecoli_mask]
+                    print(f"      Mean fold change: {ecoli_fc.mean():.3f} ± {ecoli_fc.std():.3f}")
+                    print(f"      Median fold change: {np.median(ecoli_fc):.3f}")
+                    print(f"      Expected fold change: {expected_ecoli_fc:.3f}")
+                    print(f"      Difference from expected: {ecoli_fc.mean() - expected_ecoli_fc:.3f}")
+                
+                if unknown_count > 0:
+                    print(f"    Unknown: {unknown_count} peptides")
             else:
                 print(f"  {group_letter}: No data")
 
 if __name__ == "__main__":
-    print("Creating LFQbench-style MA plots matching original image...")
-    print("X-axis: Log₁₀(average intensity)")
-    print("Y-axis: Log₁₀ fold change")
-    print("Methods: CruxLFQ, FlashLFQ, SageLFQ, IonQuant, MaxQuant, ProteomicsLFQ")
+    print("Creating LFQbench-style MA plots with box plots...")
+    print("Left panels: MA plots (X: Log₂ intensity, Y: Log₂ fold change)")
+    print("Right panels: Box plots showing fold change distributions")
+    print("Methods: IonQuant, MaxQuant, FlashLFQ")
     print("=" * 80)
     
     # Print column availability for debugging
     print("\nDebugging column mappings:")
     print(f"DataFrame columns: {len(df.columns)} total")
-    print(f"Sample CruxLFQ columns in df: {[col for col in crux_cols_map.values() if col in df.columns][:3]}...")
     print(f"Sample IonQuant columns in df: {[col for col in ion_cols_map.values() if col in df.columns][:3]}...")
+    print(f"Sample MaxQuant columns in df: {[col for col in maxquant_cols_map.values() if col in df.columns][:3]}...")
     
-    create_lfqbench_ma_plots()
+    create_lfqbench_ma_plots_with_boxplots()
     
-    print("\nMA plot analysis complete!")
-    print("Axes now match the original R LFQbench output")
+    print("\nMA plot with box plot analysis complete!")
+    print("Box plots show the distribution of log2 fold changes for each species")
+    print("Red dashed lines indicate expected E.coli fold changes based on experimental design")
