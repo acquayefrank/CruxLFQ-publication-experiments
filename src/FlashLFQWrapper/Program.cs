@@ -56,10 +56,29 @@ class Program
                     .Select(values => values[5])
         );
 
-        // Create SpectraFileInfo objects without a counter
+        // Create SpectraFileInfo objects with extracted condition and replicate
         var specFileDict = spectralFiles.ToDictionary(
             sf => sf,
-            sf => new SpectraFileInfo(sf, "a", 0, 0, 0)
+            sf =>
+            {
+                // Extract condition and replicate from filename
+                string fileName = Path.GetFileName(sf);
+                string condition = "a"; // default
+                int biologicalReplicate = 0; // default
+
+                // Look for pattern like A1, B2, C3, etc. in filename
+                var match = System.Text.RegularExpressions.Regex.Match(fileName, @"([A-E])(\d+)");
+                if (match.Success)
+                {
+                    condition = match.Groups[1].Value; // A, B, C, D, or E
+                    if (int.TryParse(match.Groups[2].Value, out int replicate))
+                    {
+                        biologicalReplicate = replicate; // 1, 2, 3, or 4
+                    }
+                }
+
+                return new SpectraFileInfo(sf, condition, biologicalReplicate, 0, 0);
+            }
         );
 
         // Create identifications
@@ -75,7 +94,8 @@ class Program
 
             string sequence = values[0];
             string spectralFile = values[5];
-            string modifications = values[8];
+            // string modifications = values[8];
+            string modifications = values[0];
             string protein_id = values[9];
 
             if (!specFileDict.TryGetValue(spectralFile, out var specFile)) continue;

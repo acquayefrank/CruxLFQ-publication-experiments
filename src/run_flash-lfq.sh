@@ -1,4 +1,4 @@
-flash_lfq=$(realpath "../bin/FlashLFQWrapper")
+flash_lfq=$(realpath "../bin/FlashLFQWrapperReplicates")
 results_folder=$(realpath "../results")
 timestamp=$(date +%F_%H%M%S)
 output_dir="${results_folder}/${timestamp}_FlashLFQ-output"

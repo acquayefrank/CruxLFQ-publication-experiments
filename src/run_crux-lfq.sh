@@ -1,6 +1,7 @@
-crux=$(realpath "../bin/crux-lfq")
+crux=$(realpath "../bin/crux-normalized")
 spectrum_files_folder=$(realpath "../data/spectrum_files")
 results_folder=$(realpath "../results")
+resplicate_file=$(realpath "../src/replicate.tsv")
 
 extension=".mzML"
 timestamp=$(date +%F_%H%M%S)
@@ -11,5 +12,5 @@ output_dir="${results_folder}/${timestamp}_crux_lfq-output"
 # and uses its absolute path for the crux lfq command.
 percolator=$(find "$results_folder" -type f -name "percolator.target.psms.txt" -exec realpath {} \; | head -n 1)
 
-nohup $crux lfq $percolator $spectrum_files_folder/*$extension --output-dir $output_dir --spectrum-parser mstoolkit --mods-spec 1M+15.9949 --nterm-peptide-mods-spec 1X+42.010565  --psm-file-format percolator --normalize true  > nohup_crux-lfq.txt &
+nohup $crux lfq $percolator $spectrum_files_folder/*$extension $resplicate_file --output-dir $output_dir --spectrum-parser mstoolkit --mods-spec 1M+15.9949 --nterm-peptide-mods-spec 1X+42.010565  --psm-file-format percolator --normalize true  > nohup_crux-lfq.txt &
 echo "Crux LFQ search started. Results will be saved in $output_dir and nohup output in nohup_crux-lfq.txt"
