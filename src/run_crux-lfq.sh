@@ -1,4 +1,4 @@
-crux=$(realpath "../bin/crux-normalized")
+crux=$(realpath "../bin/crux")
 spectrum_files_folder=$(realpath "../data/spectrum_files")
 results_folder=$(realpath "../results")
 resplicate_file=$(realpath "../src/replicate.tsv")
