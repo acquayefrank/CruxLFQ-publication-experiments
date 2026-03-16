@@ -66,14 +66,16 @@ class Program
                 string condition = "a"; // default
                 int biologicalReplicate = 0; // default
 
-                // Look for pattern like A1, B2, C3, etc. in filename
-                var match = System.Text.RegularExpressions.Regex.Match(fileName, @"([A-E])(\d+)");
-                if (match.Success)
+                // Use the LAST condition-replicate token (e.g., A3/B1), not the first token (e.g., B02)
+                var matches = System.Text.RegularExpressions.Regex.Matches(fileName, @"([A-E])(\d+)");
+                if (matches.Count > 0)
                 {
+                    var match = matches[matches.Count - 1];
                     condition = match.Groups[1].Value; // A, B, C, D, or E
                     if (int.TryParse(match.Groups[2].Value, out int replicate))
-                    {
-                        biologicalReplicate = replicate; // 1, 2, 3, or 4
+                    {   
+
+                        biologicalReplicate = replicate - 1; // actual replicate starts from 1, 2, 3, or 4 but we start at zero
                     }
                 }
 
@@ -94,8 +96,7 @@ class Program
 
             string sequence = values[0];
             string spectralFile = values[5];
-            // string modifications = values[8];
-            string modifications = values[0];
+            string modifications = values[8];
             string protein_id = values[9];
 
             if (!specFileDict.TryGetValue(spectralFile, out var specFile)) continue;
