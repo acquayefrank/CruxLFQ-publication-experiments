@@ -301,8 +301,8 @@ def main():
     x = np.log2(df13[col_x])
     y = np.log2(df13[col_y])
     plot_density_scatter(
-        y, x,
-        "IonQuant log2 Intensity", "ProteomicsLFQ log2 Intensity",
+        x, y,
+        "ProteomicsLFQ log2 Intensity", "IonQuant log2 Intensity",
         "IonQuant_vs_ProteomicsLFQ_density_scatter_plot.pdf"
     )
 
@@ -320,8 +320,8 @@ def main():
     x = np.log2(df14[col_x])
     y = np.log2(df14[col_y])
     plot_density_scatter(
-        y, x,
-        "Flash log2 Intensity", "ProteomicsLFQ log2 Intensity",
+        x, y,
+        "ProteomicsLFQ log2 Intensity", "Flash log2 Intensity",
         "Flash_vs_ProteomicsLFQ_density_scatter_plot.pdf"
     )
 
@@ -339,8 +339,8 @@ def main():
     x = np.log2(df15[col_x])
     y = np.log2(df15[col_y])
     plot_density_scatter(
-        y, x,
-        "Crux log2 Intensity", "ProteomicsLFQ log2 Intensity",
+        x, y,
+        "ProteomicsLFQ log2 Intensity", "Crux log2 Intensity",
         "Crux_vs_ProteomicsLFQ_density_scatter_plot.pdf"
     )
 
