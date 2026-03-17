@@ -128,5 +128,5 @@ You can also just download the results from our timing tests from here [zenodo](
 
 - To generate upset plots run `python plot_upset.py`
 
-- To generate volcano plots run `python plot_volcano.py`
+- To generate volcano plots run `python plot_volcano_lfqbench.py`
 
