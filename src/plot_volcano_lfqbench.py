@@ -5,8 +5,8 @@ from scipy.stats import ttest_ind
 
 # --- Data loading and merging (same as plot_fig2.py) ---
 base = "../results/formatted_results/"
-crux = base + "crux-lfq-mod-pep-in.txt_formatted"
-flash = base + "FlashLFQ+mods+protein_id_modpep-in.txt_formatted"
+crux = base + "crux-lfq-mod-pep.txt_formatted"
+flash = base + "FlashLFQ+mods+protein_id_modpep.txt_formatted"
 ion = base + "ionquant_combined_modified_peptide.tsv_formatted"
 maxq = base + "maxquant_peptides.txt_formatted"
 sage = base + "sage_lfq.tsv_formatted"

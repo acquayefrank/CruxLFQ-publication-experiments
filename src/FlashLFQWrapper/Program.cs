@@ -10,7 +10,7 @@ class Program
     {
         if (args.Length < 1)
         {
-            Console.WriteLine("Usage: FlashLFQWrapper <input_file> [--out <output_folder>]");
+            Console.WriteLine("Usage: FlashLFQWrapper <input_file> [--out <output_folder>] [--replicates <replicate_file>]");
             return;
         }
 
@@ -32,6 +32,21 @@ class Program
             argList.RemoveAt(outIndex);
         }
 
+        // Parse --replicates argument
+        string replicatesFile = null;
+        int repIndex = argList.IndexOf("--replicates");
+        if (repIndex != -1)
+        {
+            if (repIndex + 1 >= argList.Count)
+            {
+                Console.WriteLine("Error: --replicates flag provided but no file specified.");
+                return;
+            }
+            replicatesFile = argList[repIndex + 1];
+            argList.RemoveAt(repIndex + 1);
+            argList.RemoveAt(repIndex);
+        }
+
         if (argList.Count < 1)
         {
             Console.WriteLine("Error: Not enough arguments after parsing --out.");
@@ -46,6 +61,23 @@ class Program
             Directory.CreateDirectory(outputFolder);
         }
 
+        // Load replicate metadata from file if provided
+        var replicateMap = new Dictionary<string, (string condition, int biologicalReplicate, int fraction, int technicalReplicate)>();
+        if (replicatesFile != null)
+        {
+            foreach (var repLine in File.ReadLines(replicatesFile).Skip(1))
+            {
+                var cols = repLine.Split('\t');
+                if (cols.Length < 5) continue;
+                string path = cols[0].Trim();
+                string cond = cols[1].Trim();
+                if (!int.TryParse(cols[2].Trim(), out int bioRep)) continue;
+                if (!int.TryParse(cols[3].Trim(), out int frac)) continue;
+                if (!int.TryParse(cols[4].Trim(), out int techRep)) continue;
+                replicateMap[path] = (cond, bioRep, frac, techRep);
+            }
+        }
+
         // Read all lines once (except header)
         var allLines = File.ReadLines(filePath).Skip(1).ToList();
 
@@ -56,27 +88,28 @@ class Program
                     .Select(values => values[5])
         );
 
-        // Create SpectraFileInfo objects with extracted condition and replicate
+        // Create SpectraFileInfo objects from replicate file or regex fallback
         var specFileDict = spectralFiles.ToDictionary(
             sf => sf,
             sf =>
             {
-                // Extract condition and replicate from filename
-                string fileName = Path.GetFileName(sf);
-                string condition = "a"; // default
-                int biologicalReplicate = 0; // default
+                if (replicateMap.TryGetValue(sf, out var meta))
+                {
+                    return new SpectraFileInfo(sf, meta.condition, meta.biologicalReplicate, meta.fraction, meta.technicalReplicate);
+                }
 
-                // Use the LAST condition-replicate token (e.g., A3/B1), not the first token (e.g., B02)
+                // Fallback: extract condition and replicate from filename
+                string fileName = Path.GetFileName(sf);
+                string condition = "a";
+                int biologicalReplicate = 0;
+
                 var matches = System.Text.RegularExpressions.Regex.Matches(fileName, @"([A-E])(\d+)");
                 if (matches.Count > 0)
                 {
                     var match = matches[matches.Count - 1];
-                    condition = match.Groups[1].Value; // A, B, C, D, or E
+                    condition = match.Groups[1].Value;
                     if (int.TryParse(match.Groups[2].Value, out int replicate))
-                    {   
-
-                        biologicalReplicate = replicate - 1; // actual replicate starts from 1, 2, 3, or 4 but we start at zero
-                    }
+                        biologicalReplicate = replicate - 1;
                 }
 
                 return new SpectraFileInfo(sf, condition, biologicalReplicate, 0, 0);

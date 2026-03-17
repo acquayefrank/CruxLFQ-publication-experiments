@@ -46,8 +46,8 @@ def plot_density_scatter(
 def main():
     # File paths
     base = "../results/formatted_results/"
-    crux = base + "crux-lfq-mod-pep-in.txt_formatted"
-    flash = base + "FlashLFQ+mods+protein_id_modpep-in.txt_formatted"
+    crux = base + "crux-lfq-mod-pep.txt_formatted"
+    flash = base + "FlashLFQ+mods+protein_id_modpep.txt_formatted"
     ion = base + "ionquant_combined_modified_peptide.tsv_formatted"
     maxq = base + "maxquant_peptides.txt_formatted"
     sage = base + "sage_lfq.tsv_formatted"
@@ -263,7 +263,7 @@ def main():
     x = np.log2(df11[col_x])
     y = np.log2(df11[col_y])
     plot_density_scatter(
-        y, x,
+        x, y,
         "ProteomicsLFQ log2 Intensity", "MaxQuant log2 Intensity",
         "ProteomicsLFQ_vs_MaxLFQ_density_scatter_plot.pdf"
     )
@@ -282,7 +282,7 @@ def main():
     x = np.log2(df12[col_x])
     y = np.log2(df12[col_y])
     plot_density_scatter(
-        y, x,
+        x, y,
         "ProteomicsLFQ log2 Intensity", "Sage log2 Intensity",
         "ProteomicsLFQ_vs_Sage_density_scatter_plot.pdf"
     )
