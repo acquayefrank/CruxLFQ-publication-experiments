@@ -14,6 +14,8 @@ identifications=$(find "$results_folder" -type f -name "all_identifications.tsv"
 
 spectrum_files_folder=$(realpath "../data/spectrum_files")
 extension=".mzML"
+
+spectra_files=($(find "$spectrum_files_folder" -type f -name "*$extension"))
 # The code below assumes that the percolator target PSMs file is named "percolator.target.psms.txt"
 # and is located in the results folder. It finds the first occurrence of this file
 # and uses its absolute path for the crux lfq command.
