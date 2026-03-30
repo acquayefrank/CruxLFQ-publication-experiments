@@ -90,6 +90,28 @@ proteomics_cols = {
     "D1": "D1", "D2": "D2", "D3": "D3", "D4": "D4",
     "E1": "E1", "E2": "E2", "E3": "E3", "E4": "E4",
 }
+sage_cols = {
+    "A1": "B02_06_161103_A1_HCD_OT_4ul.mzML",
+    "A2": "B02_07_161103_A2_HCD_OT_4ul.mzML",
+    "A3": "B02_16_161103_A3_HCD_OT_4ul.mzML",
+    "A4": "B02_17_161103_A4_HCD_OT_4ul.mzML",
+    "B1": "B02_001_161103_B1_HCD_OT_4ul.mzML",
+    "B2": "B02_08_161103_B2_HCD_OT_4ul.mzML",
+    "B3": "B02_15_161103_B3_HCD_OT_4ul.mzML",
+    "B4": "B02_18_161103_B4_HCD_OT_4ul.mzML",
+    "C1": "B02_24_161103_C1_HCD_OT_4ul.mzML",
+    "C2": "B02_09_161103_C2_HCD_OT_4ul.mzML",
+    "C3": "B02_14_161103_C3_HCD_OT_4ul.mzML",
+    "C4": "B02_19_161103_C4_HCD_OT_4ul.mzML",
+    "D1": "B02_22_161103_D1_HCD_OT_4ul.mzML",
+    "D2": "B02_11_161103_D2_HCD_OT_4ul.mzML",
+    "D3": "B02_12_161103_D3_HCD_OT_4ul.mzML",
+    "D4": "B02_21_161103_D4_HCD_OT_4ul.mzML",
+    "E1": "B02_23_161103_E1_HCD_OT_4ul.mzML",
+    "E2": "B02_10_161103_E2_HCD_OT_4ul.mzML",
+    "E3": "B02_13_161103_E3_HCD_OT_4ul.mzML",
+    "E4": "B02_20_161103_E4_HCD_OT_4ul.mzML",
+}
 
 # Rename columns for each dataframe
 for k in crux_cols:
@@ -99,6 +121,8 @@ for k in crux_cols:
         df_crux.rename(columns={maxlfq_cols[k]: f"MaxLFQ Intensity {k}"}, inplace=True)
     if flash_cols[k] in df_flash.columns:
         df_flash.rename(columns={flash_cols[k]: f"FlashLFQ Intensity {k}"}, inplace=True)
+    if sage_cols[k] in df_sage.columns:
+        df_sage.rename(columns={sage_cols[k]: f"Sage Intensity {k}"}, inplace=True)
     if ion_cols[k] in df_ion.columns:
         df_ion.rename(columns={ion_cols[k]: f"IonQuant Intensity {k}"}, inplace=True)
     if maxquant_cols[k] in df_max_maxquant.columns:
@@ -158,6 +182,7 @@ for k in all_keys:
     keep_cols.append(f"Crux Intensity {k}")
     keep_cols.append(f"MaxLFQ Intensity {k}")
     keep_cols.append(f"FlashLFQ Intensity {k}")
+    keep_cols.append(f"Sage Intensity {k}")
     keep_cols.append(f"IonQuant Intensity {k}")
     keep_cols.append(f"MaxQuant Intensity {k}")
     keep_cols.append(f"ProteomicsLFQ Intensity {k}")
